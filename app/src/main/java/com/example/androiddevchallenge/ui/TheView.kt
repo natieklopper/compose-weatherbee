@@ -15,9 +15,11 @@
  */
 package com.example.androiddevchallenge.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.CircularProgressIndicator
@@ -32,11 +34,22 @@ import com.example.androiddevchallenge.ui.theme.WeatherBeeTheme
 import com.example.androiddevchallenge.ui.theme.progressSize
 
 @Composable
-fun MyApp(model: WeatherBeeModel = WeatherBeeModel()) {
+fun MyApp(
+    model: WeatherBeeModel = WeatherBeeModel(),
+    interact: () -> Unit = {}
+) {
     Surface(
-        Modifier.fillMaxWidth(),
+        Modifier
+            .fillMaxHeight()
+            .fillMaxWidth(),
         color = MaterialTheme.colors.background
     ) {
+        UrlImage(
+            model.image,
+            modifier = Modifier
+                .fillMaxHeight()
+                .clickable { interact() }
+        )
         Row {
             Column {
                 Text(text = model.title)

@@ -17,49 +17,97 @@ package com.example.androiddevchallenge.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.androiddevchallenge.domain.WeatherApiAdapter
+import com.example.androiddevchallenge.domain.PexelApi
+import com.example.androiddevchallenge.domain.Photos
+import com.example.androiddevchallenge.domain.WeatherApi
+import com.example.androiddevchallenge.service.Locatonator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TheViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
     val model = MutableLiveData(WeatherBeeModel())
+    lateinit var location: Locatonator
+    lateinit var weatherApi: WeatherApi
+    lateinit var pexelApi: PexelApi
 
-    init {
+    private val listen: (Pair<Double, Double>) -> Unit = {
+        update(WeatherBeeModel(latLong = it))
         getMeTheWeatherMate()
     }
 
-    private fun getMeTheWeatherMate() {
-        update(WeatherBeeModel(title = "Loading!"))
+    fun setup(
+        weatherApi: WeatherApi,
+        pexelApi: PexelApi,
+        location: Locatonator
+    ) {
+        this.weatherApi = weatherApi
+        this.pexelApi = pexelApi
+        this.location = location
+        this.location.setup(listen)
+    }
 
+    fun getMeTheWeatherMate() {
+        update(WeatherBeeModel(title = "Loading!"))
         launch {
             try {
-
-                val response = async {
-                    WeatherApiAdapter.apiClient.getWeather(
-                        "-33.879582",
-                        "151.210244"
+                val weatherResponse = withContext(Dispatchers.Default) {
+                    val loc = model.value?.latLong
+                    weatherApi.getWeather(
+                        loc?.first.toString(),
+                        loc?.second.toString()
                     )
                 }
 
-                val data = response.await().body()!!
-                print(data.toString())
+                if (weatherResponse.isSuccessful) {
+                    val pexelResponse = withContext(Dispatchers.Default) {
+                        pexelApi.getWeatherPic("computers")
+                    }
 
-                update(
-                    WeatherBeeModel(
-                        title = "Done!",
-                        isLoading = false,
-                        timezone = data.timezone,
-                        sunrise = data.current.sunrise.toString(),
-                        sunset = data.current.sunset.toString(),
-                    )
-                )
+                    val image = if (pexelResponse.isSuccessful) {
+                        pexelResponse.body()?.let {
+                            val photo = getRandomPic(it.photos)
+                            Pair(
+                                photo.src.portrait,
+                                photo.avg_color
+                            )
+                        } ?: Pair("", "")
+                    } else {
+                        Pair(
+                            "https://picsum.photos/720/1080",
+                            "#000000"
+                        )
+                    }
+
+                    weatherResponse.body()?.let {
+                        update(
+                            WeatherBeeModel(
+                                title = "Done!",
+                                isLoading = false,
+                                image = image.first,
+                                foregroundColor = getForegroundColor(image.second),
+                                timezone = it.timezone,
+                                sunrise = it.current.sunrise.toString(),
+                                sunset = it.current.sunset.toString(),
+                            )
+                        )
+                    }
+                }
             } catch (e: Exception) {
                 print(e.toString())
             }
         }
+    }
+
+    private fun getRandomPic(picUrls: List<Photos>): Photos {
+        return picUrls.shuffled().take(1)[0]
+    }
+
+    private fun getForegroundColor(hex: String): Int {
+//        if (red*0.299 + green*0.587 + blue*0.114) > 186 use #000000 else use #ffffff
+        return 0xf
     }
 
     private fun update(new: WeatherBeeModel) {
