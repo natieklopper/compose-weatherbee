@@ -1,0 +1,9 @@
+android {
+    defaultConfig {
+        //api keys
+        //https://www.pexels.com/api/documentation/
+        buildConfigField "String", "PEXEL_KEY", "\"<YOUR KEY HERE>\""
+        //https://openweathermap.org/api/one-call-api
+        buildConfigField "String", "WEATHER_KEY", "\"<YOUR KEY HERE>\""
+    }
+}
