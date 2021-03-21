@@ -21,6 +21,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.ViewModelProvider
+import com.example.androiddevchallenge.domain.PexelApiAdapter
+import com.example.androiddevchallenge.domain.WeatherApiAdapter
+import com.example.androiddevchallenge.service.Locatonation
 import com.example.androiddevchallenge.ui.MyApp
 import com.example.androiddevchallenge.ui.TheViewModel
 import com.example.androiddevchallenge.ui.WeatherBeeModel
@@ -34,11 +37,27 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel.setup(
+            WeatherApiAdapter.client,
+            PexelApiAdapter.client,
+            Locatonation(this)
+        )
         setContent {
             WeatherBeeTheme {
                 val model by viewModel.model.observeAsState(WeatherBeeModel())
-                MyApp(model)
+                MyApp(model = model) {
+                    viewModel.getMeTheWeatherMate()
+                }
             }
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        viewModel.location.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }
