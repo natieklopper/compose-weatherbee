@@ -13,4 +13,3 @@ captures
 # General
 .DS_Store
 .externalNativeBuild
-build-keys.gradle
