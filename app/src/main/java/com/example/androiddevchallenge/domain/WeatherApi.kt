@@ -37,5 +37,4 @@ object WeatherApiAdapter {
             getOkHttp().build()
         )
     }
-
 }
