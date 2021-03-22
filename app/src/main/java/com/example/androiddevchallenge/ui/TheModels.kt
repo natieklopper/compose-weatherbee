@@ -21,7 +21,7 @@ data class WeatherBeeModel(
     val isLoading: Boolean = true,
     val title: String = "WeatherBee",
     val image: String = "https://picsum.photos/720/1080",
-    val foregroundColor: Int = 0xf,
+    val foregroundColor: String = "#ffffff",
     val latLong: Pair<Double, Double> = Pair(-33.879582, 151.210244),
     val timezone: String = "",
     val sunrise: String = "",

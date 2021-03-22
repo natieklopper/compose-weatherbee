@@ -28,6 +28,7 @@ import com.example.androiddevchallenge.ui.MyApp
 import com.example.androiddevchallenge.ui.TheViewModel
 import com.example.androiddevchallenge.ui.WeatherBeeModel
 import com.example.androiddevchallenge.ui.theme.WeatherBeeTheme
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,7 +41,8 @@ class MainActivity : AppCompatActivity() {
         viewModel.setup(
             WeatherApiAdapter.client,
             PexelApiAdapter.client,
-            Locatonation(this)
+            Locatonation(this),
+            Locale.getDefault().language
         )
         setContent {
             WeatherBeeTheme {

@@ -38,3 +38,10 @@ inline fun <reified T> createApi(url: String, client: OkHttpClient): T {
         .build()
         .create(T::class.java)
 }
+
+fun getLocaleUnit(locale: String): String {
+    return when (locale) {
+        "US" -> "imperial"
+        else -> "metric"
+    }
+}

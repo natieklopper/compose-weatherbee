@@ -25,6 +25,7 @@ interface WeatherApi {
     suspend fun getWeather(
         @Query("lat") lat: String = "",
         @Query("lon") lon: String = "",
+        @Query("units") units: String = "metric",
         @Query("exclude") exclude: String = "minutely",
         @Query("appid") ai: String = BuildConfig.WEATHER_KEY
     ): Response<WeatherBee>

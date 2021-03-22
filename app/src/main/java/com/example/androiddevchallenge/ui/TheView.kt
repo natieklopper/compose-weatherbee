@@ -15,6 +15,7 @@
  */
 package com.example.androiddevchallenge.ui
 
+import android.graphics.Color.parseColor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.androiddevchallenge.ui.theme.WeatherBeeTheme
 import com.example.androiddevchallenge.ui.theme.progressSize
@@ -52,7 +55,12 @@ fun MyApp(
         )
         Row {
             Column {
-                Text(text = model.title)
+                Text(
+                    text = model.title,
+                    style = TextStyle(
+                        color = Color(parseColor(model.foregroundColor))
+                    )
+                )
                 Text(text = model.sunrise)
                 Text(text = model.sunset)
                 Text(text = model.timezone)

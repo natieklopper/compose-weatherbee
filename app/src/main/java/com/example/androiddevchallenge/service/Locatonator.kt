@@ -44,22 +44,12 @@ class Locatonation(private val ctx: AppCompatActivity) : Locatonator {
             if (isEnabled()) {
                 LocationServices.getFusedLocationProviderClient(ctx)
                     .lastLocation.addOnCompleteListener { task ->
-                        val location = task.result
-                        listen(
-                            Pair(
-                                location.latitude,
-                                location.longitude
-                            )
-                        )
+                        task.result?.let {
+                            listen(Pair(it.latitude, it.longitude))
+                        }
                     }
             } else {
-                // TODO ask to enable location
-                listen(
-                    Pair(
-                        -33.879582,
-                        151.210244
-                    )
-                )
+                listen(Pair(-33.879582, 151.210244))
             }
         } else {
             askPermission()
@@ -69,7 +59,7 @@ class Locatonation(private val ctx: AppCompatActivity) : Locatonator {
     private fun isEnabled(): Boolean {
         val locationManager = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun askPermission() {
