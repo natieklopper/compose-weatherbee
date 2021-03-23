@@ -70,7 +70,7 @@ class TheViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.M
                         val pexelResponse = withContext(Dispatchers.Default) {
                             pexelApi.getWeatherPic(
                                 wr.timezone.replace('/', ' ') + " " +
-                                        wr.current.weather.first().description
+                                    wr.current.weather.first().description
                             )
                         }
 
