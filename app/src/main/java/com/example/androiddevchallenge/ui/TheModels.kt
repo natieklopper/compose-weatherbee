@@ -15,32 +15,11 @@
  */
 package com.example.androiddevchallenge.ui
 
-import androidx.lifecycle.MutableLiveData
-
 data class WeatherBeeModel(
     val isLoading: Boolean = true,
     val title: String = "WeatherBee",
     val image: String = "https://picsum.photos/720/1080",
-    val foregroundColor: String = "#ffffff",
-    val latLong: Pair<Double, Double> = Pair(-33.879582, 151.210244),
     val timezone: String = "",
-    val sunrise: String = "",
-    val sunset: String = "",
-) {
-    fun update(
-        new: WeatherBeeModel,
-        data: MutableLiveData<WeatherBeeModel>
-    ) {
-        val tmp = this.copy(
-            isLoading = new.isLoading,
-            title = new.title,
-            image = new.image,
-            foregroundColor = new.foregroundColor,
-            latLong = new.latLong,
-            timezone = new.timezone,
-            sunrise = new.sunrise,
-            sunset = new.sunset
-        )
-        data.value = tmp
-    }
-}
+    val temp: String = "",
+    val icon: String = ""
+)

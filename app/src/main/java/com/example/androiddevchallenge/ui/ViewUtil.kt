@@ -14,5 +14,3 @@
  * limitations under the License.
  */
 package com.example.androiddevchallenge.ui
-
-class ViewUtil

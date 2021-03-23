@@ -23,3 +23,4 @@ import androidx.compose.ui.unit.dp
 val progressSize = Modifier
     .size(50.dp, 50.dp)
     .wrapContentSize()
+val gutter = 16.dp

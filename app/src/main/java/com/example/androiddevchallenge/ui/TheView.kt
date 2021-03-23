@@ -15,14 +15,8 @@
  */
 package com.example.androiddevchallenge.ui
 
-import android.graphics.Color.parseColor
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -30,11 +24,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.androiddevchallenge.ui.theme.WeatherBeeTheme
-import com.example.androiddevchallenge.ui.theme.progressSize
+import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.ui.theme.*
 
 @Composable
 fun MyApp(
@@ -53,17 +45,45 @@ fun MyApp(
                 .fillMaxHeight()
                 .clickable { interact() }
         )
-        Row {
-            Column {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Circle(circleBack())
+        }
+        Row(
+            modifier = Modifier.wrapContentSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(gutter)
+                    .wrapContentSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = model.timezone,
+                    style = MaterialTheme.typography.h3,
+                    color = textColor()
+                )
                 Text(
                     text = model.title,
-                    style = TextStyle(
-                        color = Color(parseColor(model.foregroundColor))
-                    )
+                    style = MaterialTheme.typography.caption,
+                    color = textColor()
                 )
-                Text(text = model.sunrise)
-                Text(text = model.sunset)
-                Text(text = model.timezone)
+                Text(
+                    text = model.temp,
+                    style = MaterialTheme.typography.h3,
+                    color = textColor()
+                )
+                UrlImage(
+                    model.icon,
+                    modifier = Modifier.size(100.dp)
+                )
             }
         }
         Column(

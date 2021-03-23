@@ -26,7 +26,7 @@ interface WeatherApi {
         @Query("lat") lat: String = "",
         @Query("lon") lon: String = "",
         @Query("units") units: String = "metric",
-        @Query("exclude") exclude: String = "minutely",
+        @Query("exclude") exclude: String = "minutely,hourly,daily",
         @Query("appid") ai: String = BuildConfig.WEATHER_KEY
     ): Response<WeatherBee>
 }

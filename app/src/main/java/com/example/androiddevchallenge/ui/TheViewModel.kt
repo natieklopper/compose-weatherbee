@@ -27,17 +27,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 class TheViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
     val model = MutableLiveData(WeatherBeeModel())
+    private var latLong: Pair<Double, Double> = Pair(-33.879582, 151.210244)
     lateinit var location: Locatonator
     lateinit var weatherApi: WeatherApi
     lateinit var pexelApi: PexelApi
     lateinit var locale: String
 
     private val listen: (Pair<Double, Double>) -> Unit = {
-        update(WeatherBeeModel(latLong = it))
+        latLong = it
         getMeTheWeatherMate()
     }
 
@@ -55,46 +55,42 @@ class TheViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.M
     }
 
     fun getMeTheWeatherMate() {
-        update(WeatherBeeModel(title = "Loading!"))
         launch {
             try {
                 val weatherResponse = withContext(Dispatchers.Default) {
-                    val loc = model.value?.latLong
                     weatherApi.getWeather(
-                        loc?.first.toString(),
-                        loc?.second.toString(),
+                        latLong.first.toString(),
+                        latLong.second.toString(),
                         getLocaleUnit(locale)
                     )
                 }
 
                 if (weatherResponse.isSuccessful) {
-                    weatherResponse.body()?.let {
+                    weatherResponse.body()?.let { wr ->
                         val pexelResponse = withContext(Dispatchers.Default) {
                             pexelApi.getWeatherPic(
-                                it.timezone.replace('/', ' ') + " " +
-                                        it.current.weather.first().description
+                                wr.timezone.replace('/', ' ') + " " +
+                                        wr.current.weather.first().description
                             )
                         }
 
                         val image = if (pexelResponse.isSuccessful) {
-                            pexelResponse.body()?.let {
-                                val photo = getRandomPic(it.photos)
+                            pexelResponse.body()?.let { pr ->
+                                val photo = getRandomPic(pr.photos)
                                 Pair(photo.src.portrait, photo.avg_color)
                             } ?: Pair("", "")
                         } else {
                             Pair("https://picsum.photos/720/1080", "#000000")
                         }
 
-                        update(
-                            WeatherBeeModel(
-                                title = "Done!",
-                                isLoading = false,
-                                image = image.first,
-                                foregroundColor = getForegroundColor(image.second),
-                                timezone = it.timezone,
-                                sunrise = it.current.sunrise.toString(),
-                                sunset = it.current.sunset.toString(),
-                            )
+                        model.value = WeatherBeeModel(
+                            isLoading = false,
+                            title = wr.current.weather.first().description,
+                            image = image.first,
+                            timezone = wr.timezone.substring(wr.timezone.indexOf('/') + 1)
+                                .replace('_', ' '),
+                            temp = getNiceTemp(wr.current.temp),
+                            icon = getIconUrl(wr.current.weather.first().icon)
                         )
                     }
                 }
@@ -104,23 +100,7 @@ class TheViewModel : ViewModel(), CoroutineScope by CoroutineScope(Dispatchers.M
         }
     }
 
-    private fun getRandomPic(picUrls: List<Photos>): Photos {
-        return picUrls.shuffled().take(1)[0]
-    }
-
-    //https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
-    private fun getForegroundColor(hexVal: String): String {
-        val hex = hexVal.replace("#", "")
-        val r = hex.substring(0, 2).toInt(16)
-        val g = hex.substring(2, 4).toInt(16)
-        val b = hex.substring(4, 6).toInt(16)
-
-        val revColor = r * .299 + g * .587 + b * .114
-
-        return if (revColor > 186) "#000000" else "#ffffff"
-    }
-
-    private fun update(new: WeatherBeeModel) {
-        model.value?.update(new, model)
-    }
+    private fun getNiceTemp(temp: Double) = "$temp°"
+    private fun getRandomPic(picUrls: List<Photos>) = picUrls.shuffled().take(1)[0]
+    private fun getIconUrl(icon: String) = "https://openweathermap.org/img/wn/$icon@2x.png"
 }

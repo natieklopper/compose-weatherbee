@@ -15,9 +15,12 @@
  */
 package com.example.androiddevchallenge.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-val purple200 = Color(0xFFBB86FC)
-val purple500 = Color(0xFF6200EE)
-val purple700 = Color(0xFF3700B3)
-val teal200 = Color(0xFF03DAC5)
+@Composable
+fun circleBack() = if (isSystemInDarkTheme()) Color(0xA6FFFFFF) else Color(0xA6000000)
+
+@Composable
+fun textColor() = if (isSystemInDarkTheme()) Color(0xFF000000) else Color(0xFFFFFFFF)

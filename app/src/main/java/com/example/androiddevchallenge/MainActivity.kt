@@ -28,7 +28,7 @@ import com.example.androiddevchallenge.ui.MyApp
 import com.example.androiddevchallenge.ui.TheViewModel
 import com.example.androiddevchallenge.ui.WeatherBeeModel
 import com.example.androiddevchallenge.ui.theme.WeatherBeeTheme
-import java.util.*
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,12 +36,14 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(this).get(TheViewModel::class.java)
     }
 
+    private val locatonator by lazy { Locatonation(this) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.setup(
             WeatherApiAdapter.client,
             PexelApiAdapter.client,
-            Locatonation(this),
+            locatonator,
             Locale.getDefault().language
         )
         setContent {
@@ -52,6 +54,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        locatonator.destroy()
+        super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(

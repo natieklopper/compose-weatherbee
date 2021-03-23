@@ -19,16 +19,30 @@ import android.Manifest.permission
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.core.app.ActivityCompat.requestPermissions
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import java.util.concurrent.TimeUnit
 
 private const val PERMISSION_ID = 1234
 
 class Locatonation(private val ctx: AppCompatActivity) : Locatonator {
 
     private lateinit var listen: (Pair<Double, Double>) -> Unit
+    private val fusedLocation = LocationServices.getFusedLocationProviderClient(ctx)
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            super.onLocationResult(locationResult)
+            val ll = locationResult.lastLocation
+            listen(Pair(ll.latitude, ll.longitude))
+        }
+    }
 
     override fun setup(listen: (Pair<Double, Double>) -> Unit) {
         this.listen = listen
@@ -42,12 +56,13 @@ class Locatonation(private val ctx: AppCompatActivity) : Locatonator {
             PackageManager.PERMISSION_GRANTED
         ) {
             if (isEnabled()) {
-                LocationServices.getFusedLocationProviderClient(ctx)
-                    .lastLocation.addOnCompleteListener { task ->
-                        task.result?.let {
-                            listen(Pair(it.latitude, it.longitude))
-                        }
-                    }
+                val loc = LocationRequest.create().apply {
+                    interval = TimeUnit.SECONDS.toMillis(60)
+                    fastestInterval = TimeUnit.SECONDS.toMillis(30)
+                    maxWaitTime = TimeUnit.MINUTES.toMillis(2)
+                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                }
+                fusedLocation.requestLocationUpdates(loc, locationCallback, Looper.getMainLooper())
             } else {
                 listen(Pair(-33.879582, 151.210244))
             }
@@ -56,10 +71,14 @@ class Locatonation(private val ctx: AppCompatActivity) : Locatonator {
         }
     }
 
+    fun destroy() {
+        fusedLocation.removeLocationUpdates(locationCallback)
+    }
+
     private fun isEnabled(): Boolean {
         val locationManager = ctx.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     private fun askPermission() {
